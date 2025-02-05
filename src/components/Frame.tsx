@@ -13,26 +13,63 @@ import {
   CardDescription,
   CardContent,
 } from "~/components/ui/card";
-
+import { Button } from "~/components/ui/button";
 import { config } from "~/components/providers/WagmiProvider";
 import { truncateAddress } from "~/lib/truncateAddress";
 import { base, optimism } from "wagmi/chains";
 import { useSession } from "next-auth/react";
 import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
-import { PROJECT_TITLE } from "~/lib/constants";
+import { PROJECT_TITLE, NRMN_TOKEN_ADDRESS, UNISWAP_POOL_URL, CLANKER_URL, SHARE_TEXT } from "~/lib/constants";
 
-function ExampleCard() {
+function ClankerCard() {
+  const handleBuy = useCallback(() => {
+    sdk.actions.openUrl(UNISWAP_POOL_URL);
+  }, []);
+
+  const handleViewPool = useCallback(() => {
+    sdk.actions.openUrl(UNISWAP_POOL_URL);
+  }, []);
+
+  const handleViewOriginal = useCallback(() => {
+    sdk.actions.openUrl(CLANKER_URL);
+  }, []);
+
+  const handleShare = useCallback(() => {
+    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(SHARE_TEXT)}`);
+  }, []);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome to the Frame Template</CardTitle>
-        <CardDescription>
-          This is an example card that you can customize or remove
+        <CardTitle>🦖 NORMANCLANKER</CardTitle>
+        <CardDescription className="text-base">
+          $NRMN - NormanComics Hi-Tech Internet Funny Monies
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Label>Place content in a Card here.</Label>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Button className="w-full" onClick={handleBuy}>
+            🚀 Buy $NRMN (Base Chain)
+          </Button>
+          <Button className="w-full" onClick={handleViewPool}>
+            📊 View $NRMN/$wETH UNIv3 Pool
+          </Button>
+        </div>
+        
+        <div className="space-y-2">
+          <Button variant="outline" className="w-full" onClick={handleViewOriginal}>
+            🔍 View Original Clanker Post
+          </Button>
+          <Button variant="outline" className="w-full" onClick={handleShare}>
+            📢 Share Frame (IM BUYING $NRMN)
+          </Button>
+        </div>
+
+        <div className="text-xs text-muted-foreground">
+          <Label>Token Address:</Label>
+          <p className="break-all">{NRMN_TOKEN_ADDRESS}</p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -43,7 +80,6 @@ export default function Frame() {
   const [context, setContext] = useState<Context.FrameContext>();
 
   const [added, setAdded] = useState(false);
-
   const [addFrameResult, setAddFrameResult] = useState("");
 
   const addFrame = useCallback(async () => {
@@ -72,7 +108,6 @@ export default function Frame() {
       setContext(context);
       setAdded(context.client.added);
 
-      // If frame isn't already added, prompt user to add it
       if (!context.client.added) {
         addFrame();
       }
@@ -90,31 +125,15 @@ export default function Frame() {
         setAdded(false);
       });
 
-      sdk.on("notificationsEnabled", ({ notificationDetails }) => {
-        console.log("notificationsEnabled", notificationDetails);
-      });
-      sdk.on("notificationsDisabled", () => {
-        console.log("notificationsDisabled");
-      });
-
-      sdk.on("primaryButtonClicked", () => {
-        console.log("primaryButtonClicked");
-      });
-
-      console.log("Calling ready");
       sdk.actions.ready({});
 
-      // Set up a MIPD Store, and request Providers.
       const store = createStore();
-
-      // Subscribe to the MIPD Store.
       store.subscribe((providerDetails) => {
         console.log("PROVIDER DETAILS", providerDetails);
-        // => [EIP6963ProviderDetail, EIP6963ProviderDetail, ...]
       });
     };
+    
     if (sdk && !isSDKLoaded) {
-      console.log("Calling load");
       setIsSDKLoaded(true);
       load();
       return () => {
@@ -140,7 +159,7 @@ export default function Frame() {
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">
           {PROJECT_TITLE}
         </h1>
-        <ExampleCard />
+        <ClankerCard />
       </div>
     </div>
   );
